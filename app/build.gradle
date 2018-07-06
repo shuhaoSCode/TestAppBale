@@ -1,0 +1,88 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+def releaseTime() {
+    return new Date().format("yyyy.MM.dd", TimeZone.getTimeZone("UTC"))
+}
+
+android {
+    signingConfigs {
+        release {
+            keyAlias 'key0'
+            keyPassword 'qwer1234'
+            storeFile file('../bale.jks')
+            storePassword 'qwer1234'
+        }
+    }
+
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.l.testappbale"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 2
+        flavorDimensions "1"
+        versionName "1.0.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            zipAlignEnabled true
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        String packName = "${variant.productFlavors.get(0).name}"
+                        packName = packName.replace("_", ".")
+                        packName = packName.replace("잔", "-")
+                        //def fileName = "apk/${defaultConfig.versionName}(${defaultConfig.versionCode})_${releaseTime()}/" + packName + "/test.apk"
+                        def fileName = "../../../../apk/${defaultConfig.versionName}(${defaultConfig.versionCode})_${releaseTime()}/" + packName + "/test.apk"
+                        //def fileName = packName + "/test.apk"
+                        outputFileName = fileName
+                    }
+                }
+            }
+        }
+    }
+
+    productFlavors {
+        app_test01_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+        }
+        app_test02_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "alibaba"]
+        }
+        app_test03_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "app.test03.com"]
+        }
+        app_test04_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "app.test04.com"]
+        }
+        app_test05_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "app.test05.com"]
+        }
+        app_test06_com {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "app.test06.com"]
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation project(':getchannel')
+}
